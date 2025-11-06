@@ -39,7 +39,7 @@ const App: React.FC = () => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    const API_ENDPOINT = 'https://api.monlapin.com/api/newsletter/inscription';
+    const API_ENDPOINT = 'https://api.monlapinci.com/api/newsletter/inscription';
     try {
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
