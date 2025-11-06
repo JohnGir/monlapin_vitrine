@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './App.css'; // ✅ on garde ton CSS externe
+import './App.css';
 import logoLapin from './assets/images/logo.jpeg';
-
 
 const App: React.FC = () => {
   const targetDate = new Date('2025-12-01T00:00:00Z'); // ✅ Date de lancement (1er décembre 2025 à minuit UTC)
@@ -26,36 +25,39 @@ const App: React.FC = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
     setLoading(true);
+    setErrorMessage('');
+    setSubmitted(false);
+
     const API_ENDPOINT = 'https://api.monlapinci.com/api/newsletter/inscription';
+
     try {
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          source: 'site_vitrine',
-        }),
+        body: JSON.stringify({ email, source: 'site_vitrine' }),
       });
-      if (!response.ok) throw new Error(`Erreur du serveur: ${response.status}`);
-      setEmail('');
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || 'Erreur inconnue');
+
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-    } catch (error: any) {
-      alert(`Erreur: ${error.message}`);
-      setSubmitted(false);
+      setEmail('');
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch (err: any) {
+      setErrorMessage(err.message);
     } finally {
       setLoading(false);
     }
@@ -64,7 +66,7 @@ const App: React.FC = () => {
   return (
     <div className="page-wrapper">
       <div className="content-card">
-        {/* Logo Lapin */}
+        {/* Logo */}
         <div className="icon-wrapper">
           <div className="icon-circle">
             <img
@@ -75,13 +77,13 @@ const App: React.FC = () => {
           </div>
         </div>
 
-
         {/* Titre */}
         <h1 className="title-text">
           <span className="title-gradient">Bientôt à votre service</span>
         </h1>
         <p className="subtitle-text">
-          Notre vitrine est en construction ! Entrez votre e-mail pour être la première personne informée de notre lancement.
+          Notre vitrine est en construction ! Entrez votre e-mail pour être
+          la première personne informée de notre lancement.
         </p>
 
         {/* Contact */}
@@ -103,7 +105,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Compte à rebours */}
+        {/* Countdown */}
         <div className="countdown-grid">
           {[
             { label: 'Jours', value: timeLeft.days },
@@ -122,32 +124,36 @@ const App: React.FC = () => {
 
         {/* Formulaire */}
         <div className="form-wrapper">
-          {submitted ? (
+          {submitted && (
             <div className="success-message">
-              <p>Merci ! Nous vous contacterons dès que possible.</p>
+              Merci ! Nous vous contacterons dès que possible.
             </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              <div className="form-layout">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Entrez votre e-mail"
-                  required
-                  className="email-input"
-                  disabled={loading}
-                />
-                <button
-                  type="submit"
-                  className="submit-button"
-                  disabled={loading}
-                >
-                  {loading ? <div className="spinner"></div> : 'Avertissez-moi'}
-                </button>
-              </div>
-            </form>
           )}
+          {errorMessage && (
+            <div className="error-message">
+              {errorMessage}
+            </div>
+          )}
+          <form onSubmit={handleSubmit}>
+            <div className="form-layout">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Entrez votre e-mail"
+                required
+                className="email-input"
+                disabled={loading}
+              />
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={loading}
+              >
+                {loading ? <div className="spinner"></div> : 'Avertissez-moi'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
