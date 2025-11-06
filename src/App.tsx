@@ -46,7 +46,6 @@ const App: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          timestamp: new Date().toISOString(),
           source: 'site_vitrine',
         }),
       });
@@ -82,7 +81,7 @@ const App: React.FC = () => {
           <span className="title-gradient">Bientôt à votre service</span>
         </h1>
         <p className="subtitle-text">
-          Notre vitrine est en construction ! Entrez votre e-mail pour être le premier informé de notre lancement.
+          Notre vitrine est en construction ! Entrez votre e-mail pour être la première personne informée de notre lancement.
         </p>
 
         {/* Contact */}
